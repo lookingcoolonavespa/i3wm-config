@@ -14,17 +14,21 @@ set $mod Mod4
 #visual mods
 #gaps
 gaps inner 7px
-gaps outer 2px
+gaps outer 3px
+gaps top 35px
 
 #borders
-default_border pixel 2
+default_border pixel 1
+for_window [class=.*] border pixel 1
 
 #colors
-client.focused #dbbc7f #dbbc7f #3c4841 #dbbc7f #dbbc7f
+client.focused #a7c080 #a7c080 #2d353b #d3c6aa #d3c6aa
+client.unfocused #475258 #475258 #a7c080 #475258 #475258
+client.focused_inactive #2d353b #2d353b #a7c080 #2d353b #2d353b
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:RobotoMono Nerd Font Mono 9
-
+for_window [class=".*"] title_format "  %title"
 # This font is widely installed, provides lots of uniweb glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 #font pango:DejaVu Sans Mono 8
@@ -38,7 +42,7 @@ exec --no-startup-id dex --autostart --environment i3
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock-themed --nofork
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
@@ -53,10 +57,10 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 
 # use these keys for focus, movement, and resize directions when reaching for
 # the arrows is not convenient
-set $up l
-set $down k
-set $left j
-set $right semicolon
+set $up k
+set $down j
+set $left h
+set $right l
 
 # use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -67,7 +71,8 @@ bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run
+bindsym $mod+c exec --no-startup-id dmenu_search_config -p "Edit config" -nb "#2d353b" -nf "#d3c6aa" -sb "#d3c6aa" -sf "#2d353b" -h 22 -y 10
+bindsym $mod+x exec --no-startup-id dmenu_run -p "Run" -nb "#2d353b" -nf "#d3c6aa" -sb "#d3c6aa" -sf "#2d353b" -h 22 -y 10
 # There also is i3-dmenu-desktop which only displays applications shipping a
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
@@ -97,7 +102,7 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
-bindsym $mod+h split h
+bindsym $mod+b split h
 
 # split in vertical orientation
 bindsym $mod+v split v
@@ -158,13 +163,17 @@ bindsym $mod+0 workspace number $ws10
 bindsym $mod+Shift+1 move container to workspace number $web
 bindsym $mod+Shift+2 move container to workspace number $code
 bindsym $mod+Shift+3 move container to workspace number $fun
-bindsym $mod+Shift+4 move container to workspace number $music
+bindsym $mod+Shift+4 move container to workspace $music
 bindsym $mod+Shift+5 move container to workspace number $ws5
 bindsym $mod+Shift+6 move container to workspace number $ws6
 bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
+
+#move workspace to other monitor
+bindsym $mod+n move workspace to output Left
+bindsym $mod+m move workspace to output Right
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -203,6 +212,7 @@ bindsym $mod+r mode "resize"
 # shutdown / restart / suspend...
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (CTRL+s) shutdown
 
+set $i3lockwall i3lock-themed
 mode "$mode_system" {
     bindsym l exec --no-startup-id $i3lockwall, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
@@ -220,8 +230,16 @@ mode "$mode_system" {
 
 bindsym $mod+BackSpace mode "$mode_system"
 
+#playerctl controls
+bindsym $mod+p exec playerctl play-pause
+bindsym $mod+bracketleft exec playerctl previous
+bindsym $mod+bracketright exec playerctl next
+bindsym $mod+bar exec playerctl shuffle Toggle
+
+exec --no-startup-id playerctld &
+
 #set wallpaper
-exec --no-startup-id shuf -e -n1 $HOME/Pictures/CycleBg/* | xargs feh --no-fehbg --bg-fill
+exec_always --no-startup-id shuf -e -n1 $HOME/Pictures/CycleBg/* | xargs feh --no-fehbg --bg-fill
 
 # floating pop up automatically
 for_window [window_role="pop-up"] floating enable
@@ -231,26 +249,30 @@ for_window [title="Archive Manager"] floating enable
 for_window [class="LXAppearance"] floating enable
 for_window [class="Arandr"] floating enable
 
-exec --no-startup-id ~/.config/polybar/colorblocks/launch.sh
+exec_always --no-startup-id ~/.config/polybar/colorblocks/launch.sh
 
 #set mousespeed
-exec --no-startup-id xinput set-prop 9 303 1
-exec --no-startup-id xinput set-prop 12 315 1
-exec --no-startup-id xinput set-prop 12 303 1
+exec --no-startup-id xinput set-prop pointer:'Logitech M720 Triathlon' 'libinput Accel Speed' 1
+exec --no-startup-id xinput set-prop pointer:'ELAN1300:00 04F3:3087 Touchpad' 'libinput Accel Speed' 1
+exec --no-startup-id xinput set-prop pointer:'ELAN1300:00 04F3:3087 Touchpad' 'libinput Tapping Enabled' 1
 
 #set desktop alignment
 exec --no-startup-id /home/alex/.screenlayout/default.sh
 
 #set terminal transparency
-exec --no-startup-id picom --experimental-backends --backend glx --xrender-sync-fence
+exec_always --no-startup-id picom --experimental-backends --backend glx --xrender-sync-fence
 
-exec --no-startup-id redshift
+exec --no-startup-id redshift &
 
 exec --no-startup-id numlockx on
 
 #set window brightness keys
 bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+#external monitor
+bindsym $mod+XF86MonBrightnessUp exec --no-startup-id $HOME/scripts/increase_external_monitor_brightness.sh
+bindsym $mod+XF86MonBrightnessDown exec --no-startup-id $HOME/scripts/decrease_external_monitor_brightness.sh
+
 
 ## Screenshots
 bindsym Print exec --no-startup-id maim "/home/$USER/Pictures/$(date)"
